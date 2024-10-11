@@ -1,0 +1,6 @@
+*.idea
+*.venv
+*.tex
+*.log
+*.pdf
+*.aux
