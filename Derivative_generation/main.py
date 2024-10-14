@@ -1,4 +1,5 @@
 import random
+from sympy import *
 
 def generate_polinom(degree, count_vars): #(x^(2) + 3y^(3)) / (z * y - 120.5)
     result_polynom = ""
@@ -17,10 +18,10 @@ def generate_polinom(degree, count_vars): #(x^(2) + 3y^(3)) / (z * y - 120.5)
             result_polynom += f'{coefficient}'
         else:
             if coefficient != 1:
-                result_polynom += f'{coefficient}'
+                result_polynom += f'{coefficient} * '
             result_polynom += var
             if degree_of_element != 1:
-                result_polynom += f'^({degree_of_element})'
+                result_polynom += f'**{degree_of_element}'
 
     return result_polynom
 
@@ -63,5 +64,6 @@ def get_polinom(degree, count_vars):
 
     return result
 
-
-print(get_polinom(2, 3))
+polinom = get_polinom(2, 1)
+print(polinom)
+print(diff(polinom, symbols('x')) + diff(polinom, symbols('y')) + diff(polinom, symbols('z')))
