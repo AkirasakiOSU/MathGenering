@@ -1,9 +1,21 @@
 import random
 from sympy import *
 
-def generate_polinom(degree, count_vars): #(x**2 + 3 * y**3) / (z * y - 120.5)
+def generate_function():
+    degree = random.randint(1, 5)
+    count_vars = random.randint(1, 3)
     result_polynom = ""
-    vars = get_vars(count_vars)
+
+    match count_vars:
+        case 1:
+            vars = ['x', '']
+        case 2:
+            vars = ['x', 'y', '']
+        case 3:
+            vars = ['x', 'y', 'z', '']
+        case _:
+            vars = ['x', 'y', 'z', '']
+
     count_elements = random.randint(count_vars, count_vars + 5)
 
     for i in range(count_elements):
@@ -23,53 +35,54 @@ def generate_polinom(degree, count_vars): #(x**2 + 3 * y**3) / (z * y - 120.5)
             if degree_of_element != 1:
                 result_polynom += f'**{degree_of_element}'
 
-    return result_polynom
-
-def get_fraction(degree, count_vars):
-    return f'({generate_polinom(degree, count_vars)}) / ({generate_polinom(degree, count_vars)})'
-
-def get_vars(count_vars):
-    match count_vars:
-        case 1:
-            vars = ['x', '']
-        case 2:
-            vars = ['x', 'y', '']
-        case 3:
-            vars = ['x', 'y', 'z', '']
-        case _:
-            vars = ['x', 'y', 'z', '']
-
-    return vars
-
-def get_polinom(degree, count_vars):
-    if degree < 1:
-        degree = 1
-    if count_vars < 1:
-        count_vars = 1
-
-    flag_fraction = random.randint(0, 1)
-
-    if flag_fraction:
-        result = get_fraction(degree, count_vars)
-    else:
-        result = generate_polinom(degree, count_vars)
-
     flag_bad_polinom = 0
-    for var in  get_vars(count_vars):
-        if result.find(var) == -1:
+
+    for var in vars:
+        if result_polynom.find(var) == -1:
             flag_bad_polinom = 1
             break
+
     if flag_bad_polinom:
-        result = get_polinom(degree, count_vars)
+        result_polynom = get_function_for_differential()
 
-    return result
+    return simplify(result_polynom)
 
-polinom = get_polinom(2, 1)
-print(polinom)
-#(diff(polinom, symbols('x')) + diff(polinom, symbols('y')) + diff(polinom, symbols('z')))
-#print(diff(polinom, symbols('x y')))
+def generate_function_with_fraction():
+    return f'({generate_function()}) / ({generate_function()})'
 
-#x, y = symbols('x y')
-#print(diff(polinom, x, y))
+def generate_function_with_nested_functions():
+    pass
 
-# нужен костыль для дробей
+def get_function_for_differential():
+    return generate_function()
+
+def get_function_with_fraction_for_differential():
+    return generate_function_with_fraction()
+
+def get_function_with_nested_functions_for_differential():
+    pass
+
+def get_solution_function_for_differential(funcion):
+    return simplify(diff(funcion, symbols('x')) + diff(funcion, symbols('y')) + diff(funcion, symbols('z')))
+
+def get_solution_function_with_fraction_for_differential(function_with_fraction):
+    v = function_with_fraction.split('/')[0]
+    u = function_with_fraction.split('/')[1][1:]
+
+    solution = f'({get_solution_function_for_differential(v)} * {u} - {v} * {get_solution_function_for_differential(v)}) / {u}**2'
+    return simplify(solution)
+
+def get_solution_function_with_nested_functions_for_differential(function_with_nested_functions):
+    pass
+
+
+
+function = get_function_for_differential()
+function_with_fraction = get_function_with_fraction_for_differential()
+solution_function = get_solution_function_for_differential(function)
+solution_function_with_fraction = get_solution_function_with_fraction_for_differential(function_with_fraction)
+
+print(f'Func for differential: {function}')
+print(f'Solution: {solution_function}')
+print(f'Func for differential with fraction: {function_with_fraction}')
+print(f'Solution: {solution_function_with_fraction}')
