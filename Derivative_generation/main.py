@@ -1,6 +1,7 @@
 import random
+from sympy import *
 
-def generate_polinom(degree, count_vars): #(x^(2) + 3y^(3)) / (z * y - 120.5)
+def generate_polinom(degree, count_vars): #(x**2 + 3 * y**3) / (z * y - 120.5)
     result_polynom = ""
     vars = get_vars(count_vars)
     count_elements = random.randint(count_vars, count_vars + 5)
@@ -17,10 +18,10 @@ def generate_polinom(degree, count_vars): #(x^(2) + 3y^(3)) / (z * y - 120.5)
             result_polynom += f'{coefficient}'
         else:
             if coefficient != 1:
-                result_polynom += f'{coefficient}'
+                result_polynom += f'{coefficient} * '
             result_polynom += var
             if degree_of_element != 1:
-                result_polynom += f'^({degree_of_element})'
+                result_polynom += f'**{degree_of_element}'
 
     return result_polynom
 
@@ -63,5 +64,12 @@ def get_polinom(degree, count_vars):
 
     return result
 
+polinom = get_polinom(2, 2)
+print(polinom)
+print(diff(polinom, symbols('x')) + diff(polinom, symbols('y')) + diff(polinom, symbols('z')))
+print(diff(polinom, symbols('x y')))
 
-print(get_polinom(2, 3))
+#x, y = symbols('x y')
+#print(diff(polinom, x, y))
+
+# нужен костыль для дробей
