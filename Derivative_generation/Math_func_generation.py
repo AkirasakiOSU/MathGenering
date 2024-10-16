@@ -64,10 +64,10 @@ def get_polinom(degree, count_vars):
 
     return result
 
-polinom = get_polinom(2, 2)
+polinom = get_polinom(2, 1)
 print(polinom)
-print(diff(polinom, symbols('x')) + diff(polinom, symbols('y')) + diff(polinom, symbols('z')))
-print(diff(polinom, symbols('x y')))
+#(diff(polinom, symbols('x')) + diff(polinom, symbols('y')) + diff(polinom, symbols('z')))
+#print(diff(polinom, symbols('x y')))
 
 #x, y = symbols('x y')
 #print(diff(polinom, x, y))
