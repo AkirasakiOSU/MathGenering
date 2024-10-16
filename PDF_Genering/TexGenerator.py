@@ -1,32 +1,68 @@
+import importlib.util
+import random
+
 import sympy as sp
 import os
-import ProblemGenerator
 import glob
+file_path = os.path.abspath("..\\Derivative_generation\\Math_func_generation.py")
+spec = importlib.util.spec_from_file_location("Math_func_generation", file_path)
+mathGen = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mathGen)
 
-def getTexStrokes(problems, typeOfProblem):
-    strokes = ["\\documentclass{article}\n",
-               "\\begin{document}\n"
-               ]
+problem = [
+    "Решите неопределённый интеграл",
+    "Решите определённый интеграл",
+    "Найдите передел функции",
+    "Вычислите произвудную функции"
+]
+
+headerForProblem = [
+    "\\int ",
+    "\\int_{{{}}}^{}",
+    "\\lim _{{x \\to {} }} "
+]
+
+def getTexStrokes(problems, typeOfProblem, author):
+    strokes = [
+        "\\documentclass[20pt, a4paper]{article}\n",
+        "\\usepackage[T2A]{fontenc}\n",
+        "\\usepackage[utf8]{inputenc}\n",
+        "\\usepackage[russian]{babel}\n",
+        "\\usepackage{geometry}\n",
+        "\\usepackage{enumitem}\n",
+        "\\usepackage{amsmath}\n",
+        "\\geometry{left=2cm, right=2cm, top=2cm, bottom=2cm}\n",
+        "\\title{Контрольная работа}\n",
+        f"\\author{{{author}}}\n",
+        "\\date{\\today}\n",
+        "\\begin{document}\n",
+        "\\maketitle\n",
+        "\\vspace{2cm}\n",
+        "\\begin{enumerate}[label=\\arabic*., itemsep=10pt, leftmargin=5pt]\n"
+    ]
+
     for problem in problems:
-        result = "$$ "
+        result = "\\item\n$ \\displaystyle\n"
         if typeOfProblem == 0:
-            result += "\\int "
+            result += headerForProblem[typeOfProblem]
         elif typeOfProblem == 1:
-            result += "\\int_0^\\infty "
+            result += (headerForProblem[typeOfProblem].format(random.randint(-100, 100), random.randint(-100, 100)))
         elif typeOfProblem == 2:
-            result += "\\lim _{x \\to \\infty } "
+            result += (headerForProblem[typeOfProblem].format(random.randint(-100, 100)))
         elif typeOfProblem == 3:
             result += "( "
-        problem = problem.replace('^', '**')
-        x, y, z = sp.symbols('x y z')
         expression = sp.sympify(problem)
         latex_code = sp.latex(expression)
         result += latex_code
+
         if typeOfProblem == 3:
             result += " )'"
-        result += " $$ "
+
+        result += "\n$\n"
         strokes.append(result)
-    strokes.append("\\end{document}")
+
+    strokes.append("\\end{enumerate}\n")
+    strokes.append("\\end{document}\n")
     return strokes
 
 
@@ -43,12 +79,12 @@ def delete_files_with_extension(directory, extension):
 
 def generateFiles(path, countOfFiles, countOfProblems, typeOfProblem):
     for i in range(0, countOfFiles):
-        tex = open(f"{i+1}.tex", "w")
+        tex = open(f"{i+1}.tex", "w", encoding="utf-8")
         problems = []
         for a in range(0, countOfProblems):
-            problems.append(ProblemGenerator.get_polinom(2, 3))
+            problems.append(mathGen.get_polinom(2, 3))
 
-        for str in getTexStrokes(problems, typeOfProblem):
+        for str in getTexStrokes(problems, typeOfProblem, "Романуджан"):
             tex.write(str)
         tex.close()
         os.system(f"pdflatex -output-directory={path} {i+1}.tex")

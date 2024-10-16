@@ -1,8 +1,4 @@
 import TexGenerator
-from ProblemGenerator import generate_polinom
-from TexGenerator import getTexStrokes
-
-
 """
 0 - Неопр интеграл
 1 - Опр интеграл
@@ -10,4 +6,4 @@ from TexGenerator import getTexStrokes
 3 - Дифф
 """
 
-TexGenerator.generateFiles(".\\Result\\", 10, 10, 3)
+TexGenerator.generateFiles(".\\Result\\", 1, 10, 2)
