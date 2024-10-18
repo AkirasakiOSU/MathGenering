@@ -9,7 +9,7 @@ spec = importlib.util.spec_from_file_location("Math_func_generation", file_path)
 mathGen = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mathGen)
 
-problem = [
+problemAnsvers = [
     "Решите неопределённый интеграл",
     "Решите определённый интеграл",
     "Найдите передел функции",
@@ -19,10 +19,11 @@ problem = [
 headerForProblem = [
     "\\int ",
     "\\int_{{{}}}^{}",
-    "\\lim _{{x \\to {} }} "
+    "\\lim _{{x \\to {} }} ",
+    "( "
 ]
 
-def getTexStrokes(problems, typeOfProblem, author):
+def getTexStrokes(problems, typeOfProblem, author, numberOfKR, numberOfVar):
     strokes = [
         "\\documentclass[20pt, a4paper]{article}\n",
         "\\usepackage[T2A]{fontenc}\n",
@@ -31,26 +32,33 @@ def getTexStrokes(problems, typeOfProblem, author):
         "\\usepackage{geometry}\n",
         "\\usepackage{enumitem}\n",
         "\\usepackage{amsmath}\n",
+        "\\usepackage{graphicx}\n",
+        "\\usepackage{fancyhdr}\n",
+        "\\pagestyle{fancy}\n",
+        "\\fancyhf{}\n",
+        "\\fancyhead[L]{\\includegraphics[width=10cm]{logo.png}}\n",
         "\\geometry{left=2cm, right=2cm, top=2cm, bottom=2cm}\n",
-        "\\title{Контрольная работа}\n",
+        f"\\title{{Контрольная работа № {numberOfKR}}}\n",
         f"\\author{{{author}}}\n",
         "\\date{\\today}\n",
         "\\begin{document}\n",
         "\\maketitle\n",
+        "\\begin{center}\n",
+        f"\\LARGE Вариант № {numberOfVar}\n",
+        "\\end{center}\n",
         "\\vspace{2cm}\n",
+        "\\Large"+problemAnsvers[typeOfProblem],
         "\\begin{enumerate}[label=\\arabic*., itemsep=10pt, leftmargin=5pt]\n"
     ]
 
     for problem in problems:
         result = "\\item\n$ \\displaystyle\n"
-        if typeOfProblem == 0:
-            result += headerForProblem[typeOfProblem]
-        elif typeOfProblem == 1:
-            result += (headerForProblem[typeOfProblem].format(random.randint(-100, 100), random.randint(-100, 100)))
-        elif typeOfProblem == 2:
-            result += (headerForProblem[typeOfProblem].format(random.randint(-100, 100)))
-        elif typeOfProblem == 3:
-            result += "( "
+        a = random.randint(-100, 100)
+        b = random.randint(-100, 100)
+        while b < a:
+            b = random.randint(-100, 100)
+        result += headerForProblem[typeOfProblem].format(a, b)
+
         expression = sp.sympify(problem)
         latex_code = sp.latex(expression)
         result += latex_code
@@ -65,7 +73,6 @@ def getTexStrokes(problems, typeOfProblem, author):
     strokes.append("\\end{document}\n")
     return strokes
 
-
 def delete_files_with_extension(directory, extension):
     # Формируем шаблон для поиска файлов
     search_pattern = os.path.join(directory, f"*.{extension}")
@@ -77,14 +84,14 @@ def delete_files_with_extension(directory, extension):
     for file in files_to_delete:
         os.remove(file)
 
-def generateFiles(path, countOfFiles, countOfProblems, typeOfProblem):
+def generateFiles(path, countOfFiles, countOfProblems, typeOfProblem, author):
     for i in range(0, countOfFiles):
         tex = open(f"{i+1}.tex", "w", encoding="utf-8")
         problems = []
         for a in range(0, countOfProblems):
             problems.append(mathGen.get_polinom(2, 3))
 
-        for str in getTexStrokes(problems, typeOfProblem, "Романуджан"):
+        for str in getTexStrokes(problems, typeOfProblem, author, 1, i+1):
             tex.write(str)
         tex.close()
         os.system(f"pdflatex -output-directory={path} {i+1}.tex")
