@@ -107,11 +107,11 @@ def generateTexOfProblem(
         headerForTex.format(institution, department, direction, profile, formOfEducation, kurs, discipline, nameOfWork, numberOfKR, numberOfVariant)
     ]
     i = 0
+    strokes.append("\\begin{enumerate}[label=\\Alph*., start=1]")
     for numberOfProblem in typesOfProblem:
         if numberOfProblem >= len(problemQuestions):
             raise IndexError(f"Индекс {numberOfProblem} выходит за пределы допустимого диапазона для problemQuestions")
-
-        strokes.append(f"\\Large {problemQuestions[numberOfProblem]}\n")
+        strokes.append(f"\\item \\Large {problemQuestions[numberOfProblem]}\n")
         strokes.append("\\begin{enumerate}[label=\\arabic*., itemsep=10pt, leftmargin=5pt]")
         for j in range(countOfProblems[i]):
             result = "\\item\n$ \\displaystyle\n"
@@ -127,6 +127,7 @@ def generateTexOfProblem(
             strokes.append(result)
         i += 1
         strokes.append("\\end{enumerate}\n")
+    strokes.append("\\end{enumerate}\n")
     strokes.append("\\end{document}\n")
     return strokes
 
