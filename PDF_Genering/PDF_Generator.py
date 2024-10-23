@@ -57,21 +57,28 @@ headerForTex = """
     \\usepackage{{amsmath}}
     \\usepackage{{graphicx}}
     \\usepackage{{fancyhdr}}
-    \\pagestyle{{fancy}}
-    \\fancyhf{{}}
-    \\fancyhead[L]{{\\includegraphics[width=10cm]{{logo.png}}}}
-    \\geometry{{left=2cm, right=2cm, top=2cm, bottom=2cm}}
-    \\title{{Контрольная работа № {}}}
-    \\author{{{}}}
-    \\date{{\\today}}
+    \\geometry{{left=1cm, right=0cm, top=0.5cm, bottom=0cm}}
     \\begin{{document}}
-    \\maketitle
+    \\Large{{
+    \\begin{{center}}
+    {}
+    \\end{{center}}
+    Кафедра: {}\\\\
+    Направление подготовки: {}\\\\
+    Профиль: {}\\\\
+    Форма обучения: {}\\\\
+    Курс: {}\\\\
+    Дисциплина: {}\\\\
+    }}
+    \\begin{{center}}
+    {} №{}
+    \\end{{center}}
     \\begin{{center}}
     \\LARGE Вариант № {}
     \\end{{center}}
     \\vspace{{2cm}}
 """
-# format(numberOfKR, author, numberOfVariant)
+# format(institution, department, direction, profile, formOfEducation, kurs, discipline, nameOfWork, numberOfKR, numberOfVariant)
 
 def deleteFiles(directory, extension):
     search_pattern = os.path.join(directory, f"*.{extension}")
@@ -83,14 +90,21 @@ def getProblem(typeOfProblem):
     return problemFunctions[typeOfProblem]()
 
 def generateTexOfProblem(
+    institution,
+    department,
+    direction,
+    profile,
+    formOfEducation,
+    kurs,
+    discipline,
+    nameOfWork,
+    numberOfKR,
     typesOfProblem,
     countOfProblems,
-    author,
-    numberOfKR,
     numberOfVariant
 ):
     strokes = [
-        headerForTex.format(numberOfKR, author, numberOfVariant)
+        headerForTex.format(institution, department, direction, profile, formOfEducation, kurs, discipline, nameOfWork, numberOfKR, numberOfVariant)
     ]
     i = 0
     for numberOfProblem in typesOfProblem:
@@ -121,14 +135,23 @@ def generateProblemsAndAnswers(
         countOfFiles,
         typesOfProblem,
         countOfProblems,
-        author,
+        institution,
+        department,
+        direction,
+        profile,
+        formOfEducation,
+        kurs,
+        discipline,
+        nameOfWork,
         numberOfKR
 ):
     if len(typesOfProblem) != len(countOfProblems):
         raise ValueError("Ошибка (я не придумал как подробнее ее описать :3)")
     for fileNumber in range(countOfFiles):
         file = open(f"{fileNumber + 1}.tex", "w", encoding="utf-8")
-        for stroke in generateTexOfProblem(typesOfProblem, countOfProblems, author, numberOfKR, fileNumber + 1):
+        for stroke in generateTexOfProblem(institution, department, direction, profile, formOfEducation, kurs,
+                                           discipline, nameOfWork, numberOfKR, typesOfProblem, countOfProblems,
+                                           fileNumber + 1):
             file.write(stroke)
         file.close()
         os.system(f"pdflatex -output-directory={pathForResult} {fileNumber + 1}.tex")
