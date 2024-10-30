@@ -1,6 +1,11 @@
 import random
 from sympy import *
 
+class Generate_point:
+    x = random.randint(-10, 10)
+    y = random.randint(-10, 10)
+    z = random.randint(-10, 10)
+
 def generate_function():
     degree = random.randint(1, 5)
     count_vars = random.randint(1, 3)
@@ -111,15 +116,6 @@ def generate_function_with_nested_functions():
 
     return result_polynom
 
-def generate_point():
-    x = random.randint(-10, 10)
-    y = random.randint(-10, 10)
-    z = random.randint(-10, 10)
-
-    point = [x, y, z]
-
-    return point
-
 def get_function_for_differential():
     return generate_function()
 
@@ -128,9 +124,6 @@ def get_function_with_fraction_for_differential():
 
 def get_function_with_nested_functions_for_differential():
     return generate_function_with_nested_functions()
-
-def get_point():
-    return generate_point()
 
 def get_solution_function_for_differential(funcion):
     return simplify(diff(funcion, symbols('x')) + diff(funcion, symbols('y')) + diff(funcion, symbols('z')))
@@ -146,30 +139,30 @@ def get_solution_function_with_nested_functions_for_differential(function_with_n
     return simplify(diff(function_with_nested_functions, symbols('x')) + diff(function_with_nested_functions, symbols('y')) + diff(function_with_nested_functions, symbols('z')))
 
 def get_solution_function_in_point(point, function):
-    return function.subs([(symbols('x'), point[0]), (symbols('y'), point[1]), (symbols('z'), point[2])])
+    return function.subs([(symbols('x'), point.x), (symbols('y'), point.y), (symbols('z'), point.z)])
 
 
-function = get_function_for_differential()
-solution_function = get_solution_function_for_differential(function)
-print(f'Func for differential: {function}')
-print(f'Solution: {solution_function}')
-
-print("--------------------------------------------------------------------------------------------")
-
-function_with_fraction = get_function_with_fraction_for_differential()
-solution_function_with_fraction = get_solution_function_with_fraction_for_differential(function_with_fraction)
-print(f'Func for differential with fraction: {function_with_fraction}')
-print(f'Solution: {solution_function_with_fraction}')
-
-print("--------------------------------------------------------------------------------------------")
-
-function_with_nested_functions = get_function_with_nested_functions_for_differential()
-solution_function_with_nested_functions = get_solution_function_with_nested_functions_for_differential(function_with_nested_functions)
-print(f'Func for differential with nested functions: {function_with_nested_functions}')
-print(f'Solution: {solution_function_with_nested_functions}')
-
-print("--------------------------------------------------------------------------------------------")
-
-point = get_point()
-solution_function_in_point = get_solution_function_in_point(point, solution_function)
-print(f'differential {solution_function} in point ({point[0]};{point[1]};{point[2]}) = {solution_function_in_point}')
+# function = get_function_for_differential()
+# solution_function = get_solution_function_for_differential(function)
+# print(f'Func for differential: {function}')
+# print(f'Solution: {solution_function}')
+#
+# print("--------------------------------------------------------------------------------------------")
+#
+# function_with_fraction = get_function_with_fraction_for_differential()
+# solution_function_with_fraction = get_solution_function_with_fraction_for_differential(function_with_fraction)
+# print(f'Func for differential with fraction: {function_with_fraction}')
+# print(f'Solution: {solution_function_with_fraction}')
+#
+# print("--------------------------------------------------------------------------------------------")
+#
+# function_with_nested_functions = get_function_with_nested_functions_for_differential()
+# solution_function_with_nested_functions = get_solution_function_with_nested_functions_for_differential(function_with_nested_functions)
+# print(f'Func for differential with nested functions: {function_with_nested_functions}')
+# print(f'Solution: {solution_function_with_nested_functions}')
+#
+# print("--------------------------------------------------------------------------------------------")
+#
+# point = Generate_point
+# solution_function_in_point = get_solution_function_in_point(point, solution_function)
+# print(f'differential {solution_function} in point ({point.x};{point.y};{point.z}) = {solution_function_in_point}')
