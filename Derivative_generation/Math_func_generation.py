@@ -125,22 +125,74 @@ def get_function_with_fraction_for_differential():
 def get_function_with_nested_functions_for_differential():
     return generate_function_with_nested_functions()
 
-def get_solution_function_for_differential(funcion):
-    return simplify(diff(funcion, symbols('x')) + diff(funcion, symbols('y')) + diff(funcion, symbols('z')))
+def get_solution_function_for_differential(function):
+    solution = ""
+    flag_sign_x = false
+    flag_sign_y = false
+    derivative_of_x = get_solution_partial_derivative_of_x(function)
+    derivative_of_y = get_solution_partial_derivative_of_y(function)
+    derivative_of_z = get_solution_partial_derivative_of_z(function)
+    if (derivative_of_x != ""):
+        solution += derivative_of_x
+        flag_sign_x = true
+    if (derivative_of_y != ""):
+        if (flag_sign_x == true):
+            solution += " + "
+        solution += derivative_of_y
+        flag_sign_y = true
+    if (derivative_of_z != ""):
+        if (flag_sign_x == true or flag_sign_y == true):
+            solution += " + "
+        solution += derivative_of_z
+    return solution
 
 def get_solution_function_with_fraction_for_differential(function_with_fraction):
     v = function_with_fraction.split('/')[0]
     u = function_with_fraction.split('/')[1][1:]
 
     solution = f'({get_solution_function_for_differential(v)} * {u} - {v} * {get_solution_function_for_differential(v)}) / {u}**2'
-    return simplify(solution)
+    return solution
 
 def get_solution_function_with_nested_functions_for_differential(function_with_nested_functions):
-    return simplify(diff(function_with_nested_functions, symbols('x')) + diff(function_with_nested_functions, symbols('y')) + diff(function_with_nested_functions, symbols('z')))
+    return get_solution_function_for_differential(function_with_nested_functions)
 
 def get_solution_function_in_point(point, function):
     return function.subs([(symbols('x'), point.x), (symbols('y'), point.y), (symbols('z'), point.z)])
 
+def get_solution_partial_derivative_of_x(function):
+    partial_derivative = str(simplify(diff(function, symbols('x'))))
+    if (partial_derivative.isdigit()):
+        if (partial_derivative == "0"):
+            return ""
+        return partial_derivative + "dx"
+    return '(' + partial_derivative + ')' + "dx"
+
+def get_solution_partial_derivative_of_y(function):
+    partial_derivative = str(simplify(diff(function, symbols('y'))))
+    if (partial_derivative.isdigit()):
+        if (partial_derivative == "0"):
+            return ""
+        return partial_derivative + "dy"
+    return '(' + partial_derivative + ')' + "dy"
+
+def get_solution_partial_derivative_of_z(function):
+    partial_derivative = str(simplify(diff(function, symbols('z'))))
+    if (partial_derivative.isdigit()):
+        if (partial_derivative == "0"):
+            return ""
+        return partial_derivative + "dz"
+    return '(' + partial_derivative + ')' + "dz"
+
+function = get_function_with_nested_functions_for_differential()
+solution = get_solution_function_with_nested_functions_for_differential(function)
+solution_derivative_of_x = get_solution_partial_derivative_of_x(function)
+solution_derivative_of_y = get_solution_partial_derivative_of_y(function)
+solution_derivative_of_z = get_solution_partial_derivative_of_z(function)
+print(f'Func for differential: {function}')
+print(f'Solution: {solution}')
+print(f'Solution_x: {solution_derivative_of_x}')
+print(f'Solution_y: {solution_derivative_of_y}')
+print(f'Solution_z: {solution_derivative_of_z}')
 
 # function = get_function_for_differential()
 # solution_function = get_solution_function_for_differential(function)
