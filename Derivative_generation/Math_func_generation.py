@@ -1,10 +1,16 @@
 import random
 from sympy import *
+import math
 
 class Generate_point:
     x = random.randint(-10, 10)
     y = random.randint(-10, 10)
     z = random.randint(-10, 10)
+class Solution_differential_in_poin:
+    def __init__(self, function, solution, point):
+        self.function = function
+        self.solution = solution
+        self.point = point
 
 def generate_function():
     degree = random.randint(1, 5)
@@ -155,7 +161,7 @@ def get_solution_function_with_fraction_for_differential(function_with_fraction)
     return solution
 
 def get_solution_function_with_nested_functions_for_differential(function_with_nested_functions):
-    return get_solution_function_for_differential(function_with_nested_functions)
+    return get_solution_function_for_differential(function_with_nested_functions).replace("log", "ln")
 
 def get_solution_partial_derivative_of_x(function):
     if ('/' in str(function)):
@@ -181,7 +187,7 @@ def get_solution_partial_derivative_of_x(function):
             if (partial_derivative == "0"):
                 return 0
             return partial_derivative + "dx"
-        return '(' + partial_derivative + ')' + "dx"
+        return '(' + partial_derivative.replace("log", "ln") + ')' + "dx"
 
 def get_solution_partial_derivative_of_y(function):
     if ('/' in str(function)):
@@ -207,7 +213,7 @@ def get_solution_partial_derivative_of_y(function):
             if (partial_derivative == "0" or partial_derivative[1:].isdigit()):
                 return 0
             return partial_derivative + "dy"
-        return '(' + partial_derivative + ')' + "dy"
+        return '(' + partial_derivative.replace("log", "ln") + ')' + "dy"
 
 def get_solution_partial_derivative_of_z(function):
     if ('/' in str(function)):
@@ -233,11 +239,92 @@ def get_solution_partial_derivative_of_z(function):
             if (partial_derivative == "0"):
                 return 0
             return partial_derivative + "dz"
-        return '(' + partial_derivative + ')' + "dz"
+        return '(' + partial_derivative.replace("log", "ln") + ')' + "dz"
 
-def get_solution_function_in_point(point, function):
-    return function.subs([(symbols('x'), point.x), (symbols('y'), point.y), (symbols('z'), point.z)])
+def get_random_function():
+    methods = [get_function_for_differential(), get_function_with_nested_functions_for_differential()]
+    return str(random.choice(methods))
+def get_solution_function_in_point_for_differential():
+    function = get_random_function()
+    solution = get_solution_function_for_differential(function)
+    nested_function_with_solution_in_zero = ["sin", "cos", "tan", "asin", "acos", "atan", "acot", "e**"]
+    nested_function_no_solution_in_zero = ["ln", "cot"]
 
+    there_are_functions_with_solution_in_zero = any(nested_functions in solution for nested_functions in
+                                                    nested_function_with_solution_in_zero)
+    there_are_functions_no_solution_in_zero = any(nested_functions in solution for nested_functions in
+                                                  nested_function_no_solution_in_zero)
+
+    while (there_are_functions_with_solution_in_zero and there_are_functions_no_solution_in_zero):
+        function = get_random_function()
+        solution = get_solution_function_for_differential(function)
+        there_are_functions_with_solution_in_zero = any(nested_functions in solution for nested_functions in nested_function_with_solution_in_zero)
+        there_are_functions_no_solution_in_zero = any(nested_functions in solution for nested_functions in nested_function_no_solution_in_zero)
+
+    partial_derivative_of_x = get_solution_partial_derivative_of_x(function)
+    partial_derivative_of_y = get_solution_partial_derivative_of_y(function)
+    partial_derivative_of_z = get_solution_partial_derivative_of_z(function)
+
+    point = Generate_point
+
+    if (there_are_functions_with_solution_in_zero):
+        point.x = point.y = point.z = 0
+
+    if (there_are_functions_no_solution_in_zero):
+        if ("cot" in function):
+            point.x = point.y = point.z = math.pi/2
+        else:
+            while (point.x == 0 or point.y == 0 or point.z == 0):
+                point = Generate_point
+
+    solution = ""
+    flag_sign_x = false
+    flag_sign_y = false
+
+    if (partial_derivative_of_x != 0):
+        partial_derivative_of_x = partial_derivative_of_x[:-2]
+        partial_derivative_of_x = str(parse_expr(partial_derivative_of_x).subs([(symbols('x'), point.x),
+                                                                                (symbols('y'), point.y),
+                                                                                (symbols('z'), point.z)]))
+        solution += partial_derivative_of_x + "dx"
+        flag_sign_x = true
+
+    if (partial_derivative_of_y != 0):
+        partial_derivative_of_y = partial_derivative_of_y[:-2]
+        partial_derivative_of_y = str(parse_expr(partial_derivative_of_y).subs([(symbols('x'), point.x),
+                                                                                (symbols('y'), point.y),
+                                                                                (symbols('z'), point.z)]))
+        if (flag_sign_x == true):
+            solution += " + "
+        solution += partial_derivative_of_y + "dy"
+        flag_sign_y = true
+
+    if (partial_derivative_of_z != 0):
+        partial_derivative_of_z = partial_derivative_of_z[:-2]
+        partial_derivative_of_z = str(parse_expr(partial_derivative_of_z).subs([(symbols('x'), point.x),
+                                                                                (symbols('y'), point.y),
+                                                                                (symbols('z'), point.z)]))
+        if (flag_sign_x == true or flag_sign_y == true):
+            solution += " + "
+        solution += partial_derivative_of_z + "dz"
+
+    if point.x == point.y == point.z == math.pi/2:
+        point.x = point.y = point.z = "pi/2"
+
+    if ("zoo" in solution or "I" in solution or "nan" in solution):
+        return get_solution_function_in_point_for_differential()
+
+    if (solution == ""):
+        return Solution_differential_in_poin(function, 0, point)
+    return Solution_differential_in_poin(function, solution, point)
+
+task = get_solution_function_in_point_for_differential()
+print(task.function)
+print(get_solution_function_for_differential(task.function))
+print(task.solution)
+print(f'({task.point.x}; {task.point.y}; {task.point.z})')
+
+# DOCUMENTATION:
 
 # class Generate_point
 # when creating an object of the class, the coordinates of the point are generated
