@@ -242,8 +242,113 @@ def get_solution_partial_derivative_of_z(function):
         return '(' + partial_derivative.replace("log", "ln") + ')' + "dz"
 
 def get_random_function():
-    methods = [get_function_for_differential(), get_function_with_nested_functions_for_differential()]
+    methods = [get_function_for_differential(), get_function_with_nested_functions_for_differential(), get_function_with_fraction_for_differential()]
     return str(random.choice(methods))
+
+def get_solution_function_with_fraction_in_point_for_differential(function):
+    point = Generate_point
+
+    u = function.split('/')[0][:-1]
+    v = function.split('/')[1][1:]
+
+    u_solution_partial_derivative_of_x = get_solution_partial_derivative_of_x(u)
+    u_solution_partial_derivative_of_y = get_solution_partial_derivative_of_y(u)
+    u_solution_partial_derivative_of_z = get_solution_partial_derivative_of_z(u)
+
+    v_solution_partial_derivative_of_x = get_solution_partial_derivative_of_x(v)
+    v_solution_partial_derivative_of_y = get_solution_partial_derivative_of_y(v)
+    v_solution_partial_derivative_of_z = get_solution_partial_derivative_of_z(v)
+
+    u = str(parse_expr(u).subs([(symbols('x'), point.x), (symbols('y'), point.y), (symbols('z'), point.z)]))
+    v = str(parse_expr(v).subs([(symbols('x'), point.x), (symbols('y'), point.y), (symbols('z'), point.z)]))
+
+    if (v == "0"):
+        return get_solution_function_with_fraction_in_point_for_differential(get_function_with_fraction_for_differential())
+
+    flag_u_x = false
+    flag_u_y = false
+    flag_u_z = false
+
+    flag_v_x = false
+    flag_v_y = false
+    flag_v_z = false
+
+    if (u_solution_partial_derivative_of_x != 0):
+        u_solution_partial_derivative_of_x = u_solution_partial_derivative_of_x[:-2]
+        u_solution_partial_derivative_of_x = str(parse_expr(u_solution_partial_derivative_of_x).subs([(symbols('x'), point.x),
+                                                                                (symbols('y'), point.y),
+                                                                                (symbols('z'), point.z)]))
+        flag_u_x = true
+
+    if (u_solution_partial_derivative_of_y != 0):
+        u_solution_partial_derivative_of_y = u_solution_partial_derivative_of_y[:-2]
+        u_solution_partial_derivative_of_y = str(parse_expr(u_solution_partial_derivative_of_y).subs([(symbols('x'), point.x),
+                                                                                                      (symbols('y'), point.y),
+                                                                                                      (symbols('z'), point.z)]))
+        flag_u_y = true
+
+    if (u_solution_partial_derivative_of_z != 0):
+        u_solution_partial_derivative_of_z = u_solution_partial_derivative_of_z[:-2]
+        u_solution_partial_derivative_of_z = str(parse_expr(u_solution_partial_derivative_of_z).subs([(symbols('x'), point.x),
+                                                                                                      (symbols('y'), point.y),
+                                                                                                      (symbols('z'), point.z)]))
+        flag_u_z = true
+
+    if (v_solution_partial_derivative_of_x != 0):
+        v_solution_partial_derivative_of_x = v_solution_partial_derivative_of_x[:-2]
+        v_solution_partial_derivative_of_x = str(parse_expr(v_solution_partial_derivative_of_x).subs([(symbols('x'), point.x),
+                                                                                                      (symbols('y'), point.y),
+                                                                                                      (symbols('z'), point.z)]))
+        flag_v_x = true
+
+    if (v_solution_partial_derivative_of_y != 0):
+        v_solution_partial_derivative_of_y = v_solution_partial_derivative_of_y[:-2]
+        v_solution_partial_derivative_of_y = str(parse_expr(v_solution_partial_derivative_of_y).subs([(symbols('x'), point.x),
+                                                                                                      (symbols('y'), point.y),
+                                                                                                      (symbols('z'), point.z)]))
+        flag_v_y = true
+
+    if (v_solution_partial_derivative_of_z != 0):
+        v_solution_partial_derivative_of_z = v_solution_partial_derivative_of_z[:-2]
+        v_solution_partial_derivative_of_z = str(parse_expr(v_solution_partial_derivative_of_z).subs([(symbols('x'), point.x),
+                                                                                                      (symbols('y'), point.y),
+                                                                                                      (symbols('z'), point.z)]))
+        flag_v_z = true
+
+    if(flag_u_x == false and flag_u_y == false and flag_u_z == false):
+        full_differential_u = 0
+    else:
+        full_differential_u = 1
+    if(flag_v_x == false and flag_v_y == false and flag_v_z == false):
+        full_differential_v = 0
+    else:
+        full_differential_v = 1
+
+    if (full_differential_u == 0 and full_differential_v == 0):
+        return 0
+
+
+    if (full_differential_u != 0 and full_differential_v == 0):
+        solution = (f'((({u_solution_partial_derivative_of_x})dx + ({u_solution_partial_derivative_of_y})dy + '
+                    f'({u_solution_partial_derivative_of_z})dz) * ({v})) / {str(simplify(v + "**2"))}')
+
+    if (full_differential_u == 0 and full_differential_v != 0):
+        solution = (f'(-({u}) * (({v_solution_partial_derivative_of_x})dx + '
+                              f'({v_solution_partial_derivative_of_y})dy + '
+                              f'({v_solution_partial_derivative_of_z})dz)) / {str(simplify(v + "**2"))}')
+
+    if (full_differential_u != 0 and full_differential_v != 0):
+        solution = (f'((({u_solution_partial_derivative_of_x})dx + ({u_solution_partial_derivative_of_y})dy + '
+                    f'({u_solution_partial_derivative_of_z})dz) * ({v}) - ({u}) * ('
+                    f'({v_solution_partial_derivative_of_x})dx + '
+                    f'({v_solution_partial_derivative_of_y})dy + '
+                    f'({v_solution_partial_derivative_of_z})dz)) / {str(simplify(v + "**2"))}')
+
+    if ("zoo" in solution or "I" in solution or "nan" in solution):
+        return get_solution_function_with_fraction_in_point_for_differential(get_function_with_fraction_for_differential())
+
+    return Solution_differential_in_poin(function, solution, point)
+
 def get_solution_function_in_point_for_differential():
     function = get_random_function()
     solution = get_solution_function_for_differential(function)
@@ -260,6 +365,9 @@ def get_solution_function_in_point_for_differential():
         solution = get_solution_function_for_differential(function)
         there_are_functions_with_solution_in_zero = any(nested_functions in solution for nested_functions in nested_function_with_solution_in_zero)
         there_are_functions_no_solution_in_zero = any(nested_functions in solution for nested_functions in nested_function_no_solution_in_zero)
+
+    if ('/' in function):
+        return get_solution_function_with_fraction_in_point_for_differential(function)
 
     partial_derivative_of_x = get_solution_partial_derivative_of_x(function)
     partial_derivative_of_y = get_solution_partial_derivative_of_y(function)
@@ -286,7 +394,7 @@ def get_solution_function_in_point_for_differential():
         partial_derivative_of_x = str(parse_expr(partial_derivative_of_x).subs([(symbols('x'), point.x),
                                                                                 (symbols('y'), point.y),
                                                                                 (symbols('z'), point.z)]))
-        solution += partial_derivative_of_x + "dx"
+        solution += f'({partial_derivative_of_x})dx'
         flag_sign_x = true
 
     if (partial_derivative_of_y != 0):
@@ -296,7 +404,7 @@ def get_solution_function_in_point_for_differential():
                                                                                 (symbols('z'), point.z)]))
         if (flag_sign_x == true):
             solution += " + "
-        solution += partial_derivative_of_y + "dy"
+        solution += f'({partial_derivative_of_y})dy'
         flag_sign_y = true
 
     if (partial_derivative_of_z != 0):
@@ -306,7 +414,7 @@ def get_solution_function_in_point_for_differential():
                                                                                 (symbols('z'), point.z)]))
         if (flag_sign_x == true or flag_sign_y == true):
             solution += " + "
-        solution += partial_derivative_of_z + "dz"
+        solution += f'({partial_derivative_of_z})dz'
 
     if point.x == point.y == point.z == math.pi/2:
         point.x = point.y = point.z = "pi/2"
@@ -318,11 +426,10 @@ def get_solution_function_in_point_for_differential():
         return Solution_differential_in_poin(function, 0, point)
     return Solution_differential_in_poin(function, solution, point)
 
-task = get_solution_function_in_point_for_differential()
-print(task.function)
-print(get_solution_function_for_differential(task.function))
-print(task.solution)
-print(f'({task.point.x}; {task.point.y}; {task.point.z})')
+
+
+
+
 
 # DOCUMENTATION:
 
@@ -331,6 +438,15 @@ print(f'({task.point.x}; {task.point.y}; {task.point.z})')
 # usage examples:
 # point = Generate_point
 # print(f'point ({point.x}; {point.y}; {point.z})
+
+# class Solution_differential_in_point
+# using for return information from method get_solution_function_in_point_for_differential()
+# have a three fields: function (not her differential), solution (solution differential in point), point (object of class Generate_point)
+# usage example:
+# task = get_solution_function_in_point_for_differential()
+# print(task.function)
+# print(task.solution)
+# print(f'({task.point.x}; {task.point.y}; {task.point.z})')
 
 # generate_function()
 # this function generates polynom of varying difficulties
@@ -409,3 +525,21 @@ print(f'({task.point.x}; {task.point.y}; {task.point.z})')
 # usage examples:
 # function = get_function_with_nested_functions_for_differential()
 # solution_function = get_solution_partial_derivative_of_z(function)
+
+# get_random_function()
+# this method returns random mathematic function, it may be ordinary function, function with fraction or function with nested functions
+# usage examples:
+# not used by the user, because the function is called from another function
+
+# get_solution_function_with_fraction_in_point_for_differential(function)
+# this method return object of class Solution_differential_in_point, which contains function with fraction
+# usage examples:
+# not used by the user, because the function is called from another function
+
+# get_solution_function_in_point_for_differential()
+# this method return object of class Solution_differential_in_point, which contains any function
+# usage examples:
+# task = get_solution_function_in_point_for_differential()
+# print(task.function)
+# print(task.solution)
+# print(f'({task.point.x}; {task.point.y}; {task.point.z})')
