@@ -1,6 +1,8 @@
 import random
 from sympy import *
 import math
+import numpy as np
+import matplotlib.pyplot as plt
 
 class Generate_point:
     x = random.randint(-10, 10)
@@ -426,9 +428,52 @@ def get_solution_function_in_point_for_differential():
         return Solution_differential_in_poin(function, 0, point)
     return Solution_differential_in_poin(function, solution, point)
 
+def get_graf_of_function(function, x_range=(-10, 10), y_range=(-10, 10), filename='graph.png'):
+    x = symbols('x')
 
+    func = sympify(function)
 
+    if func.has(symbols('z')):
+        return
 
+    if func.has(symbols('y')):
+
+        y = symbols('y')
+
+        if y_range is None:
+            return
+
+        x_values = np.linspace(x_range[0], x_range[1], 400)
+        y_values = np.linspace(y_range[0], y_range[1], 400)
+        X, Y = np.meshgrid(x_values, y_values)
+
+        Z = np.array([[func.evalf(subs={x: x_val, y: y_val}) for x_val in x_values] for y_val in y_values])
+
+        fig = plt.figure(figsize=(10, 6))
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot_surface(X, Y, Z, alpha=0.7, cmap='viridis')
+
+        ax.set_title(f'График функции {function}')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+
+    else:
+        x_values = np.linspace(x_range[0], x_range[1], 400)
+        y_values = [func.evalf(subs={x: val}) for val in x_values]
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(x_values, y_values, label=f'y = {function}')
+        plt.title(f'График функции {function}')
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.axhline(0, color='black', linewidth=0.5, ls='--')
+        plt.axvline(0, color='black', linewidth=0.5, ls='--')
+        plt.grid()
+        plt.legend()
+
+    plt.savefig(filename)
+    plt.close()
 
 
 # DOCUMENTATION:
@@ -543,3 +588,10 @@ def get_solution_function_in_point_for_differential():
 # print(task.function)
 # print(task.solution)
 # print(f'({task.point.x}; {task.point.y}; {task.point.z})')
+
+# get_graf_of_function(function, x_range=(-10, 10), y_range=(-10, 10), filename='graph.png')
+# this method takes function as input, also there are default arguments as range of x, range of y and filename,
+# which can be changed. method returns nothing if function with three vars has been submitted, in the end method make
+# .png file whith graf inside
+# usage examples:
+# get_graf_of_function(get_function_for_differential())
