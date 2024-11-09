@@ -3,45 +3,206 @@ import random
 import sympy as sp
 import os
 import glob
-file_path = os.path.abspath("..\\Derivative_generation\\Math_func_generation.py")
-spec = importlib.util.spec_from_file_location("Math_func_generation", file_path)
-mathGen = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(mathGen)
+import Problems
+
+from mpmath.libmp import to_str
+
+
+
+class WriterBuilder:
+    def __init__(self):
+        self.container = {
+            "pathForResult": "//DefaultPath//",
+            "institution": "DefaultInstitution",
+            "department": "DefaultDepartment",
+            "direction": "DefaultDirection",
+            "profile": "DefaultProfile",
+            "formOfEducation": "DefaultFormOfEducation",
+            "kurs": "DefaultKurs",
+            "discipline": "DefaultDiscipline",
+            "nameOfWork": "DefaultNameOfWork",
+            "numberOfKR": "DefaultNumberOfKR"
+        }
+
+    def setPathForResult(self, pathForResult):
+        self.container["pathForResult"] = pathForResult
+
+    def setInstitution(self, institution):
+        self.container["institution"] = institution
+
+    def setDepartment(self, department):
+        self.container["department"] = department
+
+    def setDirection(self, direction):
+        self.container["direction"] = direction
+
+    def setProfile(self, profile):
+        self.container["profile"] = profile
+
+    def setFormOfEducation(self, formOfEducation):
+        self.container["formOfEducation"] = formOfEducation
+
+    def setKurs(self, kurs):
+        self.container["kurs"] = kurs
+
+    def setDiscipline(self, discipline):
+        self.container["discipline"] = discipline
+
+    def setNameOfWork(self, nameOfWork):
+        self.container["nameOfWork"] = nameOfWork
+
+    def setNumberOfKR(self, numberOfKR):
+        self.container["numberOfKR"] = numberOfKR
+
+    def build(self):
+        return Writer(self.container)
+
+    def clear(self):
+        self.container = {
+            "pathForResult": "//DefaultPath//",
+            "institution": "DefaultInstitution",
+            "department": "DefaultDepartment",
+            "direction": "DefaultDirection",
+            "profile": "DefaultProfile",
+            "formOfEducation": "DefaultFormOfEducation",
+            "kurs": "DefaultKurs",
+            "discipline": "DefaultDiscipline",
+            "nameOfWork": "DefaultNameOfWork",
+            "numberOfKR": "DefaultNumberOfKR"
+        }
+
+class Writer:
+    def __init__(self, container):
+        self.container = container
+
+    def __generateProblemTex(self, numberOfVar, typesOfProblems, countOfProblems, containerForProblems):
+        strokes = [
+            headerForProblemTex.format(
+                self.container["institution"],
+                self.container["department"],
+                self.container["direction"],
+                self.container["profile"],
+                self.container["formOfEducation"],
+                self.container["kurs"],
+                self.container["discipline"],
+                self.container["nameOfWork"],
+                self.container["numberOfKR"],
+                numberOfVar
+            ),
+            "\\begin{enumerate}\n"
+        ]
+        if len(typesOfProblems) != len(countOfProblems): raise Exception("Error")
+        number = 0
+        con = []
+        for typeOfProblem in typesOfProblems:
+            strokes.append("\\item " + questionsForProblems[typeOfProblem] + "\n")
+            strokes.append("\\begin{enumerate}[label=\\alph*)]\n")
+            for i in range(countOfProblems[numberOfVar]):
+                stroke = "\\item $ "
+                problem = classMap[typeOfProblem]()
+                con.append(problem)
+                stroke += sp.latex(sp.sympify(problem.getProblem()))
+                strokes.append(stroke + " $\n")
+            number += 1
+            containerForProblems.append(con.copy())
+            con.clear()
+            strokes.append("\\end{enumerate}\n")
+        strokes.append("\\end{enumerate}\n")
+        strokes.append("\\end{document}")
+        return strokes
+
+    def __generateSolutionTex(self, numberOfVar, containerForProblems):
+        strokes = [
+            headerForAnsverTex.format(numberOfVar),
+            "\\begin{enumerate}\n"
+        ]
+        for problems in containerForProblems:
+            strokes.append("\\item " + questionsForProblems[problems[0].typeOfProblem] + "\n")
+            strokes.append("\\begin{enumerate}[label=\\alph*]\n")
+            for problem in problems:
+                stroke = "\\item $ " + sp.latex(sp.sympify(str(problem.getSolution()))) + " $\n"
+                strokes.append(stroke)
+            strokes.append("\\end{enumerate}\n")
+        strokes.append("\\end{enumerate}\n")
+        strokes.append("\\end{document}")
+        return strokes
+
+
+
+
+
+    def __getIdOfFile(self):
+        # Получаем список всех файлов в директории
+        files = os.listdir(self.container["pathForResult"])
+        # Инициализируем максимальное значение n
+        max_n = 0
+        # Перебираем файлы и находим максимальное n для файлов с расширением .pdf
+        for filename in files:
+            # Проверяем, что файл имеет формат "число.pdf"
+            if filename.endswith(".pdf") and filename[:-4].isdigit():
+                # Извлекаем число из имени файла и обновляем max_n
+                n = int(filename[:-4])
+                max_n = max(max_n, n)
+        # Возвращаем n+1
+        return max_n + 1
+
+    def writeProblemAndSolution(self, numberOfVar, typesOfProblems, countOfProblems):
+        nextIdForFile = self.__getIdOfFile()
+        problemFile = open(f"{nextIdForFile}.tex", "w", encoding="utf-8")
+        solutionFile = open(f"a_{nextIdForFile}.tex", "w", encoding="utf-8")
+        problemsForSolution = []
+        for stroke in self.__generateProblemTex(numberOfVar, typesOfProblems, countOfProblems, problemsForSolution):
+            problemFile.write(stroke)
+        for stroke in self.__generateSolutionTex(numberOfVar, problemsForSolution):
+            solutionFile.write(stroke)
+        problemFile.close()
+        solutionFile.close()
+        os.system(f"pdflatex -output-directory={self.container["pathForResult"]} {nextIdForFile}.tex")
+        os.system(f"pdflatex -output-directory={self.container["pathForResult"]} a_{nextIdForFile}.tex")
+        deleteFiles(self.container["pathForResult"], "aux")
+        deleteFiles(self.container["pathForResult"], "log")
+        deleteFiles("./", "tex")
+
+
+
 """
 0 - Дифференциал без деления
 1 - Дифференциал с делением
 2 - Дифференциал сложной функции
-3 - Неопределённый интеграл
-4 - Определённый интеграл
-5 - Предел
+3 - Частная производная по х
+4 - Частная производная по y
+5 - Частная производная по z
+6 - Значение дифференциала функции в точке !!!
+7 - Неопределённый интеграл
+8 - Определённый интеграл
+9 - Предел
 """
 
-problemFunctions = [
-    mathGen.get_function_for_differential,
-    mathGen.get_function_with_fraction_for_differential,
-    mathGen.get_function_with_nested_functions_for_differential,
-    mathGen.generate_function,  # Затычка
-    mathGen.generate_function,  # Затычка
-    mathGen.generate_function   # Затычка
+questionsForProblems = [
+    "Найдите полный дифференциал.",
+    "Найдите полный дифференциал.",
+    "Найдите полный дифференциал.",
+    "Найдите частную производную по x.",
+    "Найдите частную производную по y.",
+    "Найдите частную производную по z.",
+    "Найдите значение дифференциала функции в заданной точке.",
+    "Найдите неопределённый интеграл.",
+    "Найдите определённый интеграл.",
+    "Найдите предел функции."
 ]
 
-solutionFunctions = [
-    mathGen.get_solution_function_for_differential,
-    mathGen.get_solution_function_with_fraction_for_differential,
-    mathGen.get_solution_function_with_nested_functions_for_differential,
-    mathGen.generate_function,
-    mathGen.generate_function,
-    mathGen.generate_function,
-]
-
-problemQuestions = [
-    "Вычислите полный дифферинциал функции",
-    "Вычислите полный дифферинциал функции",
-    "Вычислите полный дифферинциал функции",
-    "Решите неопределённый интеграл",
-    "Решите определённый интеграл",
-    "Найдите предел функции",
-]
+classMap = {
+    0 : Problems.SimpleDifferentialProblem,
+    1 : Problems.DifferentialWithFarctionProblem,
+    2 : Problems.NestedDifferentialProblem,
+    3 : Problems.PartialDerivativeOfXProblem,
+    4 : Problems.PartialDerivativeOfYProblem,
+    5 : Problems.PartialDerivativeOfZProblem,
+    6 : Problems.SolutionInPointProblem,
+    7 : Problems.IntegralProblem,
+    8 : Problems.RimanIntervalProblem,
+    9 : Problems.LimitProblem
+}
 
 headerForProblem = [
     "d\\left( ",
@@ -106,7 +267,8 @@ headerForAnsverTex = """
     \\geometry{{left=1cm, right=0cm, top=0.5cm, bottom=0cm}}\n
     \\begin{{document}}\n
     \\begin{{center}}\n
-    \\Large{{Ответы}}
+    \\Large{{Ответы}}\n
+    \\Large{{Вариант {}}}\n
     \\end{{center}}\n
 """
 
@@ -117,112 +279,3 @@ def deleteFiles(directory, extension):
     files_to_delete = glob.glob(search_pattern)
     for file in files_to_delete:
         os.remove(file)
-
-def getProblem(typeOfProblem):
-    return problemFunctions[typeOfProblem]()
-
-def generateTexOfProblem(
-    arrayForProblem,
-    institution,
-    department,
-    direction,
-    profile,
-    formOfEducation,
-    kurs,
-    discipline,
-    nameOfWork,
-    numberOfKR,
-    typesOfProblem,
-    countOfProblems,
-    numberOfVariant
-):
-    strokes = [
-        headerForProblemTex.format(institution, department, direction, profile, formOfEducation, kurs, discipline, nameOfWork, numberOfKR, numberOfVariant)
-    ]
-    i = 0
-    strokes.append("\\begin{enumerate}[label=\\Alph*., start=1]")
-    for numberOfProblem in typesOfProblem:
-        if numberOfProblem >= len(problemQuestions):
-            raise IndexError(f"Индекс {numberOfProblem} выходит за пределы допустимого диапазона для problemQuestions")
-        strokes.append(f"\\item \\Large {problemQuestions[numberOfProblem]}\n")
-        strokes.append("\\begin{enumerate}[label=\\arabic*., itemsep=10pt, leftmargin=5pt]")
-        for j in range(countOfProblems[i]):
-            result = "\\item\n$ \\displaystyle\n"
-            a = random.randint(-100, 100)
-            b = random.randint(-100, 100)
-            while b < a:
-                b = random.randint(-100, 100)
-            result += headerForProblem[numberOfProblem].format(a, b)
-            problem = getProblem(numberOfProblem)
-            arrayForProblem.append([problem, numberOfProblem])
-            result += sp.latex(sp.sympify(problem))
-
-            result += footerForProblem[numberOfProblem]
-            result += "\n$\n"
-            strokes.append(result)
-        i += 1
-        strokes.append("\\end{enumerate}\n")
-    strokes.append("\\end{enumerate}\n")
-    strokes.append("\\end{document}\n")
-    return strokes
-
-def generateTexOfAnsvers(problems) :
-    result = [
-        headerForAnsverTex.format()
-    ]
-    f = -1
-    result.append("\\begin{enumerate}[label=\\Alph*., start=1]\n")
-    for problem in problems:
-        if f != problem[1]:
-            if f != -1:
-                result.append("\\end{enumerate}\n")
-            result.append(f"\\item \\Large {problemQuestions[problem[1]]}\n")
-            result.append("\\begin{enumerate}[label=\\arabic*., itemsep=10pt, leftmargin=5pt]\n")
-            f = problem[1]
-        if problem[1] <= 2:
-            ansver = solutionFunctions[problem[1]](problem[0])
-        else:
-            ansver = solutionFunctions[problem[1]]()
-        result.append(f" \\item $ {sp.latex(sp.sympify(ansver))} $ \n")
-    result.append("\\end{enumerate}\n")
-    result.append("\\end{enumerate}\n")
-    result.append("\\end{document}\n")
-    return result
-
-def generateProblemsAndAnswers(
-        pathForResult,
-        countOfFiles,
-        typesOfProblem,
-        countOfProblems,
-        institution,
-        department,
-        direction,
-        profile,
-        formOfEducation,
-        kurs,
-        discipline,
-        nameOfWork,
-        numberOfKR
-):
-    if len(typesOfProblem) != len(countOfProblems):
-        raise ValueError("Error (я не придумал как подробнее ее описать :3)")
-    for fileNumber in range(countOfFiles):
-        arrayForProblem = []
-        file = open(f"{fileNumber + 1}.tex", "w", encoding="utf-8")
-        for stroke in generateTexOfProblem(arrayForProblem, institution, department, direction, profile, formOfEducation, kurs,
-                                           discipline, nameOfWork, numberOfKR, typesOfProblem, countOfProblems,
-                                           fileNumber + 1):
-            file.write(stroke)
-        file.close()
-        os.system(f"pdflatex -output-directory={pathForResult} {fileNumber + 1}.tex")
-        deleteFiles(pathForResult, "aux")
-        deleteFiles(pathForResult, "log")
-        deleteFiles("./", "tex")
-        ansversFile = open(f"ansvers_{fileNumber + 1}.tex", "w", encoding="utf-8")
-        for stroke in generateTexOfAnsvers(arrayForProblem):
-            ansversFile.write(stroke)
-        ansversFile.close()
-        os.system(f"pdflatex -output-directory={pathForResult} ansvers_{fileNumber + 1}.tex")
-        deleteFiles(pathForResult, "aux")
-        deleteFiles(pathForResult, "log")
-        deleteFiles("./", "tex")
