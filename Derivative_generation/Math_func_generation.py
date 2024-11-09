@@ -188,8 +188,8 @@ def get_solution_partial_derivative_of_x(function):
         if (partial_derivative.isdigit() or partial_derivative[1:].isdigit()):
             if (partial_derivative == "0"):
                 return 0
-            return partial_derivative + "dx"
-        return '(' + partial_derivative.replace("log", "ln") + ')' + "dx"
+            return partial_derivative + " * dx"
+        return '(' + partial_derivative.replace("log", "ln") + ')' + " * dx"
 
 def get_solution_partial_derivative_of_y(function):
     if ('/' in str(function)):
@@ -214,8 +214,8 @@ def get_solution_partial_derivative_of_y(function):
         if (partial_derivative.isdigit()):
             if (partial_derivative == "0" or partial_derivative[1:].isdigit()):
                 return 0
-            return partial_derivative + "dy"
-        return '(' + partial_derivative.replace("log", "ln") + ')' + "dy"
+            return partial_derivative + " * dy"
+        return '(' + partial_derivative.replace("log", "ln") + ')' + " * dy"
 
 def get_solution_partial_derivative_of_z(function):
     if ('/' in str(function)):
@@ -240,8 +240,8 @@ def get_solution_partial_derivative_of_z(function):
         if (partial_derivative.isdigit() or partial_derivative[1:].isdigit()):
             if (partial_derivative == "0"):
                 return 0
-            return partial_derivative + "dz"
-        return '(' + partial_derivative.replace("log", "ln") + ')' + "dz"
+            return partial_derivative + " * dz"
+        return '(' + partial_derivative.replace("log", "ln") + ')' + "* dz"
 
 def get_random_function():
     methods = [get_function_for_differential(), get_function_with_nested_functions_for_differential(), get_function_with_fraction_for_differential()]
@@ -592,6 +592,6 @@ def get_graf_of_function(function, x_range=(-10, 10), y_range=(-10, 10), filenam
 # get_graf_of_function(function, x_range=(-10, 10), y_range=(-10, 10), filename='graph.png')
 # this method takes function as input, also there are default arguments as range of x, range of y and filename,
 # which can be changed. method returns nothing if function with three vars has been submitted, in the end method make
-# .png file whith graf inside
+# .png file with graf inside
 # usage examples:
-# get_graf_of_function(get_function_for_differential())
+get_graf_of_function(get_function_with_nested_functions_for_differential())
