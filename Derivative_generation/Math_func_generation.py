@@ -392,7 +392,7 @@ def get_solution_function_in_point_for_differential():
     flag_sign_y = false
 
     if (partial_derivative_of_x != 0):
-        partial_derivative_of_x = partial_derivative_of_x[:-2]
+        partial_derivative_of_x = partial_derivative_of_x[:-5]
         partial_derivative_of_x = str(parse_expr(partial_derivative_of_x).subs([(symbols('x'), point.x),
                                                                                 (symbols('y'), point.y),
                                                                                 (symbols('z'), point.z)]))
@@ -400,7 +400,7 @@ def get_solution_function_in_point_for_differential():
         flag_sign_x = true
 
     if (partial_derivative_of_y != 0):
-        partial_derivative_of_y = partial_derivative_of_y[:-2]
+        partial_derivative_of_y = partial_derivative_of_y[:-5]
         partial_derivative_of_y = str(parse_expr(partial_derivative_of_y).subs([(symbols('x'), point.x),
                                                                                 (symbols('y'), point.y),
                                                                                 (symbols('z'), point.z)]))
@@ -410,7 +410,7 @@ def get_solution_function_in_point_for_differential():
         flag_sign_y = true
 
     if (partial_derivative_of_z != 0):
-        partial_derivative_of_z = partial_derivative_of_z[:-2]
+        partial_derivative_of_z = partial_derivative_of_z[:-5]
         partial_derivative_of_z = str(parse_expr(partial_derivative_of_z).subs([(symbols('x'), point.x),
                                                                                 (symbols('y'), point.y),
                                                                                 (symbols('z'), point.z)]))
@@ -594,4 +594,4 @@ def get_graf_of_function(function, x_range=(-10, 10), y_range=(-10, 10), filenam
 # which can be changed. method returns nothing if function with three vars has been submitted, in the end method make
 # .png file with graf inside
 # usage examples:
-get_graf_of_function(get_function_with_nested_functions_for_differential())
+# get_graf_of_function(get_function_with_nested_functions_for_differential())
